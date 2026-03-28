@@ -11,8 +11,10 @@ char_list = sorted(list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012
 
 dataset = LineOCRDataset(images_dir="data/train/lines", labels_csv="data/train/labels.csv", char_list=char_list)
 
-# Get first item
-img_tensor, label_tensor = dataset[0]
+print("Vocabulary (char list):")
+print(dataset.chars)
+print(f"Number of characters (vocab size): {len(dataset.chars)}")
 
-print(img_tensor.shape)   # e.g., [3, 28, variable_width]
-print(label_tensor)       # e.g., [5, 12, 2, 8] -> encoded text indices
+print("\nCharacter to index mapping (0 is CTC blank):")
+for char, idx in dataset.char_to_idx.items():
+    print(f"'{char}': {idx}")

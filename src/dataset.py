@@ -8,27 +8,34 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
 class LineOCRDataset(Dataset):
-    def __init__(self, images_dir, labels_csv, char_list=None, img_height=28, transform=None):
+    def __init__(self, images_dir, labels_csv, char_list=None, transform=None):
         """
         images_dir: path to line images
-        labels_csv: path to CSV, format: filename,text
-        char_list: list of all possible characters (your vocab)
-        img_height: fixed height for images
+        labels_csv: path to CSV, format: filename,label (with header)
+        char_list: list of all possible characters (vocab)
         transform: optional torchvision transforms
         """
         self.images_dir = images_dir
-        self.img_height = img_height
+        self.labels_csv = labels_csv
         self.transform = transform
 
-        # Load CSV
+        # Load CSV and skip header
         self.samples = []
         with open(labels_csv, newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
+            next(reader, None)  # skip header
             for row in reader:
                 if len(row) != 2:
                     continue
                 filename, text = row
+                img_path = os.path.join(self.images_dir, filename)
+                if not os.path.exists(img_path):
+                    print(f"Warning: missing image {img_path}, skipping")
+                    continue
                 self.samples.append((filename, text))
+
+        if len(self.samples) == 0:
+            raise RuntimeError("No valid samples found in CSV!")
 
         # Build character dictionary
         if char_list is None:
@@ -61,13 +68,7 @@ class LineOCRDataset(Dataset):
         filename, text = self.samples[idx]
         img_path = os.path.join(self.images_dir, filename)
         image = Image.open(img_path).convert('RGB')  # keep color
-
-        # Resize height, maintain aspect ratio
-        w, h = image.size
-        new_h = self.img_height
-        new_w = int(w * new_h / h)
-        image = image.resize((new_w, new_h), Image.BICUBIC)
-
+ 
         if self.transform:
             image = self.transform(image)
         else:
