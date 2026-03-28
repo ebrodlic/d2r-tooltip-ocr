@@ -2,6 +2,7 @@
 import os
 import sys
 import torch
+import argparse
 from PIL import Image
 from torchvision import transforms
 
@@ -11,7 +12,6 @@ sys.path.insert(0, project_root)
 
 from src.dataset import LineOCRDataset
 from src.model import CRNN
-import argparse
 
 # --- Command line arguments ---
 parser = argparse.ArgumentParser(description="Run OCR on a single line image")
