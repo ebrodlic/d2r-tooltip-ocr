@@ -8,9 +8,12 @@ checkpoints/
 *.pt
 *.pth
 
+# Ignore ONNX models
 models/
-*.pt
-*.pth
+*.onnx
+
+# Ignore any debug tensor dumps
+debug/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
